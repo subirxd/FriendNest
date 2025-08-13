@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+.bgImg{
+    background: #f7feff;
+background: linear-gradient(90deg, rgba(247, 254, 255, 1) 0%, rgba(171, 237, 197, 1) 50%, rgba(237, 237, 223, 1) 100%);
+}
