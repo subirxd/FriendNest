@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react'
+import sponsoredImage from "../assets/sponsored_img.png"
 import { dummyPostsData } from '../assets/assets';
 import Loading from '../Components/Loading';
 import StoriesBar from '../Components/StoriesBar';
+import PostCard from '../Components/PostCard';
+import RecentMessages from '../Components/RecentMessages';
 
 const Feed = () => {
   const [feeds, setFeeds] = useState([]);
@@ -23,16 +26,24 @@ const Feed = () => {
        <StoriesBar />
 
         <div className='p-4 space-y-6'>
-          list of posts
+          {feeds.map((feed, index) => (
+            <PostCard feed={feed} key={index} />
+          ))}
         </div>
       </div>
 
       {/* right sidebar */}
-      <div>
-        <div>
-          <h1>Sponsored</h1>
+      <div className='max-xl:hidden sticky top-0'>
+        <div className='max-w-xs bg-white text-xs p-4 rounded-md inline-flex 
+        flex-col gap-2 shadow'>
+          
+          <h3 className='text-slate-800 font-semibold'>Sponsored</h3>
+          <img src={sponsoredImage} className='w-75 h-50 rounded-md' alt='sponsored_image' />
+          <p className='text-slate-600'>Email Marketing</p>
+          <p className='text-slate-400'>Supercharge your marketing with a powerful, easy-to-use platform build for results.</p>
         </div>
-        <h1>Recent Messages</h1>
+        
+        <RecentMessages />
       </div>
     </div>
   ) : (
