@@ -20,4 +20,8 @@ app.listen(port, () => {
     console.log(`Server started at port ${port}`);
 });
 
+app.get("/", (req, res) => {
+    res.send("Hello world");
+})
+
 await mongodbConnect();
