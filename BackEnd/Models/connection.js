@@ -14,8 +14,8 @@ const connectionSchema = new mongoose.Schema({
     },
     status:{
         type:"String",
-        enum:["Pending", "Accepted"],
-        default:"Pending",
+        enum:["pending", "accepted", "rejected"],
+        default:"pending",
     }
 }, {timeseries: true});
 

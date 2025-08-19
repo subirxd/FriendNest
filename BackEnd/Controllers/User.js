@@ -337,7 +337,7 @@ export const getUserConnections = async(req, res) => {
         const followers = user.followers;
         const following = user.following;
 
-        const pendingConnection = (await Connection.find({to_user_id: userId, status: "Pending"})
+        const pendingConnection = (await Connection.find({to_user_id: userId, status: "pending"})
         .populate("from_user_id")).map((connection) => connection.from_user_id)
 
         return res.json({
@@ -352,3 +352,121 @@ export const getUserConnections = async(req, res) => {
         });
     }
 }
+
+//accept the connection request
+export const acceptConnectionRequest = async(req, res) => {
+    try {
+        const {userId} = req.auth();
+        const {senderId} = req.body;
+
+        //check if both profile exist
+        const user = await User.findById(userId);
+        if(!user){
+            return res.status(404).json({
+                success: false,
+                message: "Invalid user."
+            })
+        }
+
+        const sender = await User.findById(senderId);
+        if(!sender){
+            return res.status(404).json({
+                success: false,
+                message: "Target user not found."
+            })
+        }
+
+        const connectionRequest = await Connection.findOne({
+            from_user_id: senderId,
+            to_user_id: userId,
+            status: "pending"
+        });
+
+        if(!connectionRequest){
+            return res.status(404).json({
+                success: false,
+                message:"No pending connection request from this user."
+            })
+        }
+
+        if(user.connections.includes(senderId)){
+            return res.status(403).json({
+                success: false,
+                message: "User is already added."
+            })
+        }
+
+        const [updatedUser, updatedSender] = await Promise.all([
+            User.findByIdAndUpdate(userId, {$push: {connections: senderId}}, {new: true}),
+            User.findByIdAndUpdate(senderId, {$push: {connections: userId}}, {new: true}),
+        ]);
+
+        connectionRequest.status = "accepted";
+        connectionRequest.acceptedAt = Date.now();
+        await connectionRequest.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "User added successfully."
+        })
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+};
+
+
+export const rejectConnectionRequest = async(req, res)=>{
+    try {
+        const {userId} = req.auth();
+        const {senderId} = req.body;
+
+        const user = await User.findById(userId);
+        const sender = await User.findById(senderId);
+
+        if(!user){
+            return res.status(404).json({
+                success: false,
+                message: "User not found."
+            })
+        }
+
+        if(!sender){
+            return res.status(404).json({
+                success: false,
+                message: "Target user not found."
+            })
+        }
+
+        const connectionRequest = await Connection.findOne({
+            from_user_id: senderId,
+            to_user_id: userId,
+            status: "pending"
+        })
+
+        if(!connectionRequest){
+            return res.status(404).json({
+                success: false,
+                message: "No connection request from this user."
+            })
+        }
+
+        connectionRequest.status = "rejected";
+        await connectionRequest.save();
+        
+        return res.status(200).json({
+            success: true,
+            message: "Request rejected successfully."
+        })
+            
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        })
+    }
+};
