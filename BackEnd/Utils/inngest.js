@@ -71,7 +71,7 @@ const sendNewConnectionRequestReminder = inngest.createFunction(
         const {connectionId} = event.data;
 
         await step.run("send-connection-request-mail", async () => {
-            const connection = await Connection.findById(connectionId).populate("from-user-id to-user-id");
+            const connection = await Connection.findById(connectionId).populate("from_user_id to_user_id");
             const subject = `New Connection Request`;
             const body = `<div style="background-color: #ffffff; max-width: 600px; margin: 20px auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
     
@@ -106,7 +106,7 @@ const sendNewConnectionRequestReminder = inngest.createFunction(
         const in24hours = new Date(Date.now() + 24 * 60 * 60 * 1000);
         await step.sleepUntil("wait-for-25-hours", in24hours);
         await step.run('send-connection-request-reminder', async() => {
-            const connection = await Connection.findById(connectionId).populate("from-user-id to-user-id");
+            const connection = await Connection.findById(connectionId).populate("from_user_id to_user_id");
 
             if(connection.status === "accepted"){
                 return {message: "Already Accepted"}

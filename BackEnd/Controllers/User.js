@@ -2,6 +2,7 @@ import { err } from "inngest/types";
 import User from "../Models/user.js";
 import Connection from "../Models/connection.js";
 import { uploadImageToCloudinary } from "../Utils/imageUpload.js";
+import Post from "../Models/post.js";
 
 //get userData using userID
 export const getUserData = async(req, res) => {
@@ -418,7 +419,7 @@ export const acceptConnectionRequest = async(req, res) => {
     }
 };
 
-
+//reject connection request
 export const rejectConnectionRequest = async(req, res)=>{
     try {
         const {userId} = req.auth();
@@ -469,4 +470,33 @@ export const rejectConnectionRequest = async(req, res)=>{
             message: error.message,
         })
     }
+};
+
+//get user profiles
+export const getUserProfile = async(req, res) => {
+     try {
+        const {profileId} = req.body;
+        const profile = await User.findById(profileId);
+
+        if(!profile){
+            return res.status(404).json({
+                success: false,
+                message: "User not found."
+            })
+        }
+        
+        const posts = await Post.find({user: profileId}).populate("user");
+
+        return res.status(200).json({
+            success: true,
+            profile: profile,
+            posts: posts,
+        })
+     } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        })
+     }
 };
