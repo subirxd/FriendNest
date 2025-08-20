@@ -1,6 +1,7 @@
 import express from "express";
 import { acceptConnectionRequest, discoverUser, followUser, getUserConnections, getUserData, getUserProfile, rejectConnectionRequest, sendConnectionRequest, unfollowUser, updateUserData } from "../Controllers/User.js";
 import { protect } from "../Middlewares/auth.js";
+import { getUserRecentMessages } from "../Controllers/message.js";
 const userRouter = express.Router();
 
 userRouter.get("/data", protect ,getUserData);
@@ -15,5 +16,6 @@ userRouter.post("/reject", protect, rejectConnectionRequest);
 
 
 userRouter.post("/profiles", protect, getUserProfile);
+userRouter.get("/recent-messages", protect, getUserRecentMessages);
 
 export default userRouter;
