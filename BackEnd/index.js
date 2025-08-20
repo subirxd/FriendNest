@@ -9,6 +9,7 @@ import { cloudinaryConnect } from "./Config/cloudinary.js";
 import fileUpload from "express-fileupload";
 import userRouter from "./Routes/userRoute.js";
 import postRouter from "./Routes/postRoute.js";
+import storyRouter from "./Routes/storyRoute.js";
 
 const app = express();
 app.use(express.json());
@@ -27,6 +28,7 @@ app.use(
 )
 app.use("/api/user", userRouter);
 app.use("/api/post", postRouter);
+app.use("/api/story", storyRouter);
 
 const port = process.env.PORT || 4000;
 

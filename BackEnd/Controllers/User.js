@@ -3,6 +3,7 @@ import User from "../Models/user.js";
 import Connection from "../Models/connection.js";
 import { uploadImageToCloudinary } from "../Utils/imageUpload.js";
 import Post from "../Models/post.js";
+import { inngest } from "../Utils/inngest.js";
 
 //get userData using userID
 export const getUserData = async(req, res) => {
@@ -309,10 +310,15 @@ export const sendConnectionRequest = async(req, res) => {
         }
         
         // If no pending request exists, create a new one
-        await Connection.create({
+        const connection  = await Connection.create({
             from_user_id: userId,
             to_user_id: receiverId,
         });
+
+        await inngest.send({
+            name: 'app/connection.request',
+            data: {connectionId: connection._id}
+        })
         
         return res.status(200).json({
             success: true,

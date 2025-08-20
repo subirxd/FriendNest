@@ -1,0 +1,36 @@
+import mongoose from "mongoose";
+
+const storySchema = new mongoose.Schema({
+    user: {
+        type:String,
+        ref: "user",
+        required: true
+    },
+    content: {
+        type: String,
+    },
+    media_url:{
+        type: String
+    },
+    media_type:{
+        type: String,
+        enum: ["image", "text", "video"],
+        required: true,
+    },
+    view_count:[
+        {
+            type: String,
+            ref: "User"      
+        }
+    ],
+    background_color:{
+        type: String,
+    },
+    expires:{
+        type: Date,
+        default: () => Date.now() + 24*60*60*1000,
+    }
+}, {timestamps: true});
+
+const Story = mongoose.model("Story", storySchema);
+export default Story;
