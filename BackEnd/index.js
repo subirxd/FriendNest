@@ -10,6 +10,7 @@ import fileUpload from "express-fileupload";
 import userRouter from "./Routes/userRoute.js";
 import postRouter from "./Routes/postRoute.js";
 import storyRouter from "./Routes/storyRoute.js";
+import messageRouter from "./Routes/messageRoute.js";
 
 const app = express();
 app.use(express.json());
@@ -29,6 +30,7 @@ app.use(
 app.use("/api/user", userRouter);
 app.use("/api/post", postRouter);
 app.use("/api/story", storyRouter);
+app.use("/api/message", messageRouter);
 
 const port = process.env.PORT || 4000;
 
