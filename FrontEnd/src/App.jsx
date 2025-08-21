@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 import { Router, Routes, Route } from 'react-router-dom'
 import Login from './Pages/Login'
@@ -10,13 +10,27 @@ import Discover from "./Pages/Discover"
 import Profile from "./Pages/Profile"
 import CreatePost from "./Pages/CreatePost"
 import Layout from "./Pages/Layout"
-import { useUser } from '@clerk/clerk-react'
+import { useAuth, useUser } from '@clerk/clerk-react'
 import {Toaster} from "react-hot-toast"
+import {useDispatch} from "react-redux"
+import { fetchUser } from './Services/Operations/userAPIs'
 
 function App() {
-  
+  const dispatch = useDispatch();
   const {user} = useUser();
-  //console.log(user);
+  const {getToken} = useAuth();
+  
+  useEffect(() => {
+    const fetchData = async() => {
+      
+        if(user && getToken){
+        const token = await getToken();
+        dispatch(fetchUser(token));
+      }
+    }
+
+    fetchData();
+  }, [user, getToken, dispatch])
   return (
     <>
     <Toaster />

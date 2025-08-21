@@ -1,18 +1,41 @@
 import { BadgeCheck, Heart, MessageCircle, Share, Share2 } from 'lucide-react'
 import React, { useState } from 'react'
 import moment from 'moment'
-import { dummyUserData } from '../assets/assets';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { likePost } from '../Services/Operations/postAPIs';
+import {useAuth} from "@clerk/clerk-react"
 
 const PostCard = ({feed}) => {
 
     const navigate = useNavigate();
     const postWithHashTags = feed.content.replace(/(#\w+)/g, `<span class="text-indigo-600">$1</span>`);
     const [likes, setLikes] = useState(feed.likes_count);
-    const currentUser = dummyUserData;
+    const currentUser = useSelector((state) => state.user.value);
+    const dispatch = useDispatch();
+    const {getToken} = useAuth();
 
     const handleLike = async() => {
+        try {
+            const token = await getToken();
+            const response = await dispatch(likePost(feed._id, token));
 
+            if(response){
+                setLikes(
+                    prev => {
+                        if(prev.includes(currentUser._id)){
+                            return prev.filter(id => id !== currentUser._id)
+                        }
+                        else{
+                            return [...prev, currentUser._id];
+                        }
+                    }
+                );
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to like/unlike the post.");
+        }
     }
 
   return (

@@ -1,31 +1,45 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { dummyPostsData, dummyUserData } from '../assets/assets';
 import Loading from "../Components/Loading"
 import UserProfileInfo from '../Components/UserProfileInfo';
 import PostCard from '../Components/PostCard';
 import moment from 'moment';
 import ProfileModal from '../Components/ProfileModal';
+import { useAuth } from '@clerk/clerk-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getProfile } from '../Services/Operations/userAPIs';
 
 const Profile = () => {
 
-  const {profileId} = useParams();
+  const currentUser = useSelector((state) => state.user.value)
+  const {getToken} = useAuth();
+  const { profileId } = useParams();
+  const dispatch = useDispatch();
 
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [activeTab, setActiveTab] = useState("Posts");
   const [showEdit, setShowEdit] = useState(false);
 
-  const fetchUser = async() => {
-    setUser(dummyUserData);
-    setPosts(dummyPostsData);
-    //console.log(posts);
+  const fetchUser = async(profileId) => {
+
+    const token = await getToken();
+    const response = await dispatch(getProfile(profileId, token));
+    if(response){
+      setUser(response.profile);
+      setPosts(response.posts)
+    }
   }
 
   useEffect(()=>{
 
-    fetchUser();
-  }, [])
+      if(profileId){
+        fetchUser(profileId);
+      }
+      else{
+        fetchUser(currentUser._id);
+      }
+  }, [profileId, currentUser])
 
   return user ? (
     <div className='relative h-full overflow-y-scroll bg-gray-50 p-6'>

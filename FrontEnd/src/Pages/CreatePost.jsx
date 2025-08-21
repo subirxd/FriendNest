@@ -1,17 +1,60 @@
 import React, { useState } from 'react'
-import { dummyUserData } from '../assets/assets';
 import { Image, X } from 'lucide-react';
-
+import { useDispatch, useSelector } from 'react-redux';
+import toast from 'react-hot-toast';
+import {useAuth} from "@clerk/clerk-react"
+import { addPost } from '../Services/Operations/postAPIs';
+import {useNavigate} from "react-router-dom"
 const CreatePost = () => {
+
+  const dispatch = useDispatch();
+  const {getToken} = useAuth();
+  const navigate = useNavigate();
+
 
   const [content, setContent] = useState('');
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
-  const user = dummyUserData;
+  const user = useSelector((state) => state.user.value);
 
   const handleSubmit = async() => {
-    
-  }
+    if(!images.length && !content){
+        return toast.error("Please add at least one image or some text.");
+    }
+
+    setLoading(true);
+    const postType = images.length && content ? "text_with_image"
+        : images.length ? "image" : "text";
+
+    const formData = new FormData();
+    formData.append("content", content);
+    formData.append("post_type", postType);
+    images.map((image) => formData.append("images", image));
+
+    try {
+        const toastId = toast.loading("Uploading post...", {
+            position: "bottom-center"
+        });
+
+        const token = await getToken();
+        const response = await dispatch(addPost(formData, token));
+
+        // Check if the addPost thunk returned a success response
+        if (response && response.success) {
+            toast.dismiss(toastId);
+            navigate("/");
+        } else {
+            // Handle API-level errors
+            toast.error(response?.message || "Failed to upload post.");
+        }
+    } catch (error) {
+        // Handle unexpected errors
+        console.error(error);
+        toast.error("An error occurred. Please try again.");
+    } finally {
+        setLoading(false);
+    }
+}
 
   return (
     <div className='min-h-screen bg-gradient-to-b from-slate-50 to-white'> 
@@ -79,7 +122,7 @@ const CreatePost = () => {
           disabled = {loading}
           onClick={handleSubmit}
           >
-            Publish Post
+            {loading ? "Uploading..." : "Publish Post"}
           </button>
         </div>
 

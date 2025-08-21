@@ -1,17 +1,37 @@
 import React, { useEffect, useState } from 'react'
 import sponsoredImage from "../assets/sponsored_img.png"
-import { dummyPostsData } from '../assets/assets';
 import Loading from '../Components/Loading';
 import StoriesBar from '../Components/StoriesBar';
 import PostCard from '../Components/PostCard';
 import RecentMessages from '../Components/RecentMessages';
+import {useAuth} from "@clerk/clerk-react"
+import { useDispatch } from 'react-redux';
+import { fetchFeedData } from '../Services/Operations/postAPIs';
+import toast from 'react-hot-toast';
 
 const Feed = () => {
+
+  const {getToken} = useAuth();
+  const dispatch = useDispatch();
+
   const [feeds, setFeeds] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchFeeds = async() =>{
-    setFeeds(dummyPostsData);
+    const token = await  getToken();
+
+    setLoading(true);
+
+    try {
+      const response = await dispatch(fetchFeedData(token));
+
+      if(response){
+        setFeeds(response.data);
+      }
+    } catch (error) {
+      toast.error(error.message);
+      console.log(error);
+    }
     setLoading(false);
   }
 

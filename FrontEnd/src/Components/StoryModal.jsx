@@ -1,6 +1,9 @@
+import { useAuth } from '@clerk/clerk-react';
 import { ArrowLeft, Sparkle, TextIcon, UploadIcon } from 'lucide-react';
 import React, { useState } from 'react'
 import toast from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { addStory } from '../Services/Operations/storyAPIs';
 
 const StoryModal = ({setShowModal, fetchStories}) => {
     const bgColors = ["#4f46e5", "#7c3aed", "#db2777", "#e11d48", "#ca8a04", "#0d9488"];
@@ -11,20 +14,84 @@ const StoryModal = ({setShowModal, fetchStories}) => {
     const [media, setMedia] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
 
+    const dispatch = useDispatch();
+    const {getToken} = useAuth();
+    const max_duration = 60;
+    const max_size_in_mb = 50;
+
     const handleMediaUpload = (e) => {
         const file = e.target.files?.[0];
 
         if(file){
-            setMedia(file);
-            setPreviewUrl(URL.createObjectURL(file));
-            console.log(file);
-            console.log(previewUrl);
+            if(file.type.startsWith('video')){
+                if(file.size > max_size_in_mb * 1024 * 1024){
+                    toast.error("Video file size cannot exceed 50MB");
+                    setMedia(null);
+                    setPreviewUrl(null);
+                    return;
+                }
+
+                const video = document.createElement('video');
+                video.preload = 'metadata';
+                video.onloadedmetadata = () => {
+                    window.URL.createObjectURL(video.src)
+                    if(video.duration > max_duration){
+                        toast.error("Video size can't exceed 1 minute")
+                        setMedia(null);
+                        previewUrl(url);
+
+                    } else {
+                        setMedia(file);
+                        setPreviewUrl(URL.createObjectURL(file));
+                        setText("");
+                        setMode("media")
+                    }
+                }
+
+                video.src = URL.createObjectURL(file);
+            } else if(file.type.startsWith('image')) {
+                        setMedia(file);
+                        setPreviewUrl(URL.createObjectURL(file));
+                        setText("");
+                        setMode("media")
+            }
         }
     }
 
     const handleCreateStory = async() => {
-        toast.success("Story Uploaded");
-        setShowModal(false);
+        const media_type = mode === "media" ? media?.type.startsWith('image') ? 'image' : "video" : "text"
+
+        if(media_type === 'text' && !text){
+            toast.error("Please enter some text to upload.");
+            return;
+        }
+
+        let formData = new FormData();
+        formData.append("content", text);
+        formData.append("media_type", media_type);
+        if(media_type !== 'text' && media){
+            formData.append("media", media);
+        }
+        formData.append("background_color", background);
+        const token = await getToken();
+
+        const toastId = toast.loading("Uploading Story", {position: 'bottom-center'});
+        try {
+            const data = await dispatch(addStory(formData, token));
+
+            if(data){
+                toast.success(data.message);
+            }
+            else{
+                toast.error(data?.message || "Failed to create story.");
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error(error.message);
+        } finally{
+            setShowModal(false);
+            toast.dismiss(toastId);
+        }
     }
 
   return (
