@@ -1,21 +1,35 @@
 import React, { useEffect, useState } from 'react'
-import { dummyStoriesData } from '../assets/assets';
 import { Plus } from 'lucide-react';
 import moment from "moment"
 import StoryModal from './StoryModal';
 import StoryViewer from './StoryViewer';
+import { useAuth } from '@clerk/clerk-react';
+import { useDispatch } from 'react-redux';
+import { fetchStories } from '../Services/Operations/storyAPIs';
 
 const StoriesBar = () => {
+
+    const {getToken} = useAuth();
+    const disptach = useDispatch();
+
     const [stories, setStories] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [viewStory, setViewStory] = useState(false);
 
-    const fetchStories = async() => {
-        setStories(dummyStoriesData);
+    const fetchStory = async() => {
+        try {
+            const token = await getToken();
+            const response = await disptach(fetchStories(token));
+            if(response){
+                setStories(response);
+            }
+        } catch (error) {
+            console.error(response);
+        }
     }
 
     useEffect(() => {
-        fetchStories();
+        fetchStory();
     }, []);
 
   return (
