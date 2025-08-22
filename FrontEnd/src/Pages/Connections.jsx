@@ -1,21 +1,64 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Users, UserPlus, UserCheck, UserRoundPen, MessageSquare } from 'lucide-react'
 import { data, useNavigate } from 'react-router-dom'
-import {
-  dummyConnectionsData, dummyFollowersData, dummyFollowingData,
-  dummyPendingConnectionsData
-} from "../assets/assets"
+import { useSelector, useDispatch } from 'react-redux'
+import { useAuth } from '@clerk/clerk-react'
+import { acceptConnectionRequest, fetchConnections, handleUnfollow, rejectConnectionRequest } from '../Services/Operations/connectionAPIs'
+import { setConnection, setFollowers, setFollowing, setPendingConnections } from '../Slices/connectionSlice'
 
 const Connections = () => {
+
+  const {connection, pendingConnections, followers, following} = useSelector((state) => state.connections)
+
   const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState('Followers');
+  const dispatch = useDispatch();
+  const {getToken} = useAuth();
 
   const dataArray = [
-    {label: "Followers", value: dummyFollowersData, icon: Users},
-    {label: "Following", value: dummyFollowingData, icon: UserCheck},
-    {label: "Pending", value: dummyPendingConnectionsData, icon: UserRoundPen},
-    {label: "Connections", value: dummyConnectionsData, icon: UserPlus},
+    {label: "Followers", value: followers, icon: Users},
+    {label: "Following", value: following, icon: UserCheck},
+    {label: "Pending", value: pendingConnections, icon: UserRoundPen},
+    {label: "Connections", value: connection, icon: UserPlus},
   ];
+
+  const handleUnfollowUser = async(userId) => {
+      const token = await getToken();
+      dispatch(handleUnfollow(userId, token));
+      dispatch(fetchConnections(await getToken()));
+  }
+
+  const acceptConnection = async(userId) => {
+      try {
+        const response = await dispatch(acceptConnectionRequest(userId, token));
+        dispatch(fetchConnections(await getToken()));
+      } catch (error) {
+        console.error(error);
+      }
+  }
+
+  const rejectConnection = async(userId) => {
+      try {
+        const response = await dispatch(rejectConnectionRequest(userId, await getToken()));
+        dispatch(fetchConnections(await getToken()));
+      } catch (error) {
+        console.error(error); 
+      }
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+        try {
+            const token = await getToken();
+            dispatch(fetchConnections(token));
+        } catch (error) {
+            console.error("Failed to fetch connections:", error);
+        }
+    };
+
+    fetchData();
+
+  }, [getToken, dispatch]);
 
   return (
     <div className='min-h-screen bg-slate-50'>
@@ -95,7 +138,9 @@ const Connections = () => {
                     {
                       currentTab === 'Following' && (
                         <button className='w-full p-2 text-sm rounded bg-slate-100 hover:bg-slate-200
-                        text-black active:scale-95 transition cursor-pointer'>
+                        text-black active:scale-95 transition cursor-pointer'
+                        onClick={() => handleUnfollowUser(user._id)}
+                        >
                           Unfollow
                         </button>
                       )
@@ -105,11 +150,15 @@ const Connections = () => {
                       currentTab === 'Pending' && (
                         <>
                           <button className='w-full p-2 text-sm rounded bg-slate-300 hover:bg-slate-400
-                        text-black active:scale-95 transition cursor-pointer'>
+                        text-black active:scale-95 transition cursor-pointer'
+                        onClick={() => acceptConnection(user._id)}
+                        >
                           Accept
                         </button>
                         <button className='w-full p-2 text-sm rounded bg-slate-100 hover:bg-slate-200
-                        text-black active:scale-95 transition cursor-pointer'>
+                        text-black active:scale-95 transition cursor-pointer'
+                        onClick={() => rejectConnection(user._id)}
+                        >
                           Reject
                         </button>
                         </>

@@ -63,3 +63,21 @@ export const getProfile = (profileId, token) => {
         }
     }
 };
+
+export const searchUser = (input, token) => {
+    return async (dispatch) => {
+        try {
+            const response = await apiConnector("POST", userRoutes.discoverUser, input, {
+                Authorization: `Bearer ${token}`
+            });
+            if(response?.data.success){
+                return response.data;
+            } else {
+                throw new Error(response?.data);
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error(error.response.data.message);
+        }
+    }
+};

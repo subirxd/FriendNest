@@ -1,16 +1,34 @@
 import React from 'react'
 import { MapPin, MessageCircle, MessageSquare, Plus, UserPlus } from 'lucide-react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useAuth } from '@clerk/clerk-react';
+import toast from 'react-hot-toast';
+import { fetchConnections, sendConnectionRequest } from '../Services/Operations/connectionAPIs';
+import {handleFollow as handleFollows} from "../Services/Operations/connectionAPIs"
 
 const UserCard = ({user}) => {
     const currentUser = useSelector((state) => state.user.value);
+    const {getToken} = useAuth();
+    const dispatch = useDispatch();
 
     const handleFollow = async() => {
-
+        try {
+            const token = await getToken();
+            dispatch(handleFollows(user._id, token));
+            dispatch(fetchConnections(token));
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     const handleConnectionRequest = async() => {
-
+        try {
+            const token = await getToken();
+            dispatch(sendConnectionRequest(user._id, token));
+            dispatch(fetchConnections(token))
+        } catch (error) {
+            console.error(error);
+        }
     }
   return (
     <div key={user._id} className='p-4 pt-6 flex flex-col justify-between w-72 shadow border 

@@ -1,27 +1,42 @@
 import React, { useState } from 'react'
-import { dummyConnectionsData } from '../assets/assets';
 import { Search } from 'lucide-react';
 import UserCard from '../Components/UserCard';
 import Loading from "../Components/Loading"
+import { useDispatch } from 'react-redux';
+import { searchUser } from '../Services/Operations/userAPIs';
+import { useAuth } from '@clerk/clerk-react';
+import { fetchConnections } from '../Services/Operations/connectionAPIs';
 
 const Discover = () => {
 
   const [input, setInput] = useState("");
-  const [users, setUsers] = useState(dummyConnectionsData);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const {getToken} = useAuth();
 
-  const handleSearch = async(e) => {
-      if(e.key === "Enter"){
-        setUsers([]);
+const handleSearch = async (e) => {
+    if (e.key === "Enter") {
         setLoading(true);
+        try {
+            setUsers([]);
+            const token = await getToken();
+            const response = await dispatch(searchUser({input}, token));
+            dispatch(fetchConnections(token));
+            console.log(response);
 
-        setTimeout(() => {
-          setUsers(dummyConnectionsData);
-          setLoading(false);
-          setInput("");
-        }, 1000)
-      }
-  }
+            if (response?.success) {
+                setUsers(response.data);
+            } else {
+                console.error("API call failed:", response?.message);
+            }
+        } catch (error) {
+            console.error("An error occurred:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
+};
 
   return (
     <div className='min-h-screen bg-slate-50'>

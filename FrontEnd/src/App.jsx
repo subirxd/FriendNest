@@ -14,6 +14,8 @@ import { useAuth, useUser } from '@clerk/clerk-react'
 import {Toaster} from "react-hot-toast"
 import {useDispatch} from "react-redux"
 import { fetchUser } from './Services/Operations/userAPIs'
+import { fetchConnections } from './Services/Operations/connectionAPIs'
+import { setConnection } from './Slices/connectionSlice'
 
 function App() {
   const dispatch = useDispatch();
@@ -26,11 +28,12 @@ function App() {
         if(user && getToken){
         const token = await getToken();
         dispatch(fetchUser(token));
+        dispatch(fetchConnections(token));
       }
     }
 
     fetchData();
-  }, [user, getToken, dispatch])
+  }, [user, getToken, dispatch]);
   return (
     <>
     <Toaster />
