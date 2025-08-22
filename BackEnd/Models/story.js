@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const storySchema = new mongoose.Schema({
     user: {
         type:String,
-        ref: "user",
+        ref: "User",
         required: true
     },
     content: {

@@ -113,7 +113,7 @@ export const discoverUser = async(req, res) => {
 
         const filteredUsers = allUsers.filter((user) => user._id !== userId);
 
-        if(!filteredUsers){
+        if(filteredUsers.length === 0){
             return res.status(404).json({
                 success: false,
                 message: "No user found."
@@ -338,18 +338,18 @@ export const sendConnectionRequest = async(req, res) => {
 export const getUserConnections = async(req, res) => {
     try {
         const {userId} = req.auth();
-        const user = await User.findById(userId).populate('connections, followers, following');
+        const user = await User.findById(userId).populate(['connections', 'followers', 'following']);;
 
-        const connections = user.connections;
-        const followers = user.followers;
-        const following = user.following;
+        const connections = user?.connections;
+        const followers = user?.followers;
+        const following = user?.following;
 
         const pendingConnection = (await Connection.find({to_user_id: userId, status: "pending"})
         .populate("from_user_id")).map((connection) => connection.from_user_id)
 
         return res.json({
             success: true,
-            data: connections, followers, following, pendingConnection
+            connections, followers, following, pendingConnection
         });
     } catch (error) {
         console.error(error);
