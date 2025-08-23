@@ -15,9 +15,14 @@ import messageRouter from "./Routes/messageRoute.js";
 const app = express();
 app.use(express.json());
 app.use(cors({
-    origin: ["http://localhost:3000", "https://friend-nest.vercel.app/"],
-    credentials: true,
+  origin: [
+    "http://localhost:3000",
+    "https://friend-nest.vercel.app",
+    "https://friend-nest-lerkogod7-subirxds-projects.vercel.app"
+  ],
+  credentials: true,
 }));
+
 
 app.use("/api/inngest", serve({ client: inngest, functions }));
 app.use(clerkMiddleware());
