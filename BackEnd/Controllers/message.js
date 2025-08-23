@@ -20,7 +20,7 @@ export const serverSideEventController = (req, res)=>{
     connections[userId] = res
 
     //send an initial event to the client
-    res.write('log: Connected to SSE stream \n\n');
+    res.write(`event: log\ndata: Connected to SSE stream\n\n`);
 
     //handle client disconnection
     req.on('close', () => {
@@ -36,7 +36,6 @@ export const sendMessage = async(req, res) => {
         const {userId} = req.auth();
         const {to_user_id, text} = req.body;
         const media = req?.files?.media;
-
         let media_url = "";
         let message_type = "text";
 
@@ -58,6 +57,7 @@ export const sendMessage = async(req, res) => {
         const messageWithUserData = await Message.findById(message._id).populate("from_user_id");
 
         if(connections[to_user_id]){
+            console.log("sending SSE to:", to_user_id, messageWithUserData);
             connections[to_user_id].write(`data: ${JSON.stringify(messageWithUserData)}\n\n`);
         }
 
@@ -86,7 +86,7 @@ export const getChatMessages = async(req, res) => {
                 { from_user_id: userId, to_user_id: to_user_id},
                 {from_user_id: to_user_id, to_user_id: userId},
             ]
-        }).sort({createdAt: -1});
+        })
 
         //mark messages as seen
         await Message.updateMany({from_user_id: to_user_id, to_user_id: userId}, 
