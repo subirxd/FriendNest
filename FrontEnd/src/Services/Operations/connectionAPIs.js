@@ -120,6 +120,7 @@ export const sendConnectionRequest = (userId, token) => {
 
             if(data.success){
                 toast.success(data.message);
+                return data; 
             } else {
                 throw new Error(data);
             }

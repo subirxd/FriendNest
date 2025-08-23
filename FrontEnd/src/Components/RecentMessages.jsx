@@ -1,14 +1,17 @@
 import React, { useEffect } from 'react'
-import { dummyRecentMessagesData } from '../assets/assets';
 import {Link} from "react-router-dom"
 import { useState } from 'react';
 import moment from 'moment';
+import { useDispatch } from 'react-redux';
+import { useAuth } from '@clerk/clerk-react';
 
 const RecentMessages = () => {
     const [messages, setMessages] = useState([]);
+    const dispatch = useDispatch();
+    const {getToken} = useAuth();
 
     const fetchRecentMessage = async() =>{
-        setMessages(dummyRecentMessagesData);
+        setMessages();
     }
 
     useEffect(() =>{

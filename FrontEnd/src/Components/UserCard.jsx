@@ -5,30 +5,39 @@ import { useAuth } from '@clerk/clerk-react';
 import toast from 'react-hot-toast';
 import { fetchConnections, sendConnectionRequest } from '../Services/Operations/connectionAPIs';
 import {handleFollow as handleFollows} from "../Services/Operations/connectionAPIs"
+import { setValue } from '../Slices/userSlice';
+import {useNavigate} from "react-router-dom"
 
 const UserCard = ({user}) => {
     const currentUser = useSelector((state) => state.user.value);
     const {getToken} = useAuth();
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const handleFollow = async() => {
         try {
             const token = await getToken();
-            dispatch(handleFollows(user._id, token));
-            dispatch(fetchConnections(token));
+            const response = await dispatch(handleFollows(user._id, token));
+
+            if(response.success){
+                dispatch(setValue(response.userData));
+            }
+            
         } catch (error) {
             console.error(error);
         }
     }
 
     const handleConnectionRequest = async() => {
-        try {
-            const token = await getToken();
-            dispatch(sendConnectionRequest(user._id, token));
-            dispatch(fetchConnections(token))
-        } catch (error) {
+       if(currentUser.connections.includes(user._id)){
+            return  navigate("/messages/"+user._id);
+       } 
+
+       try {
+            dispatch(sendConnectionRequest(user._id, await getToken()));
+       } catch (error) {
             console.error(error);
-        }
+       }
     }
   return (
     <div key={user._id} className='p-4 pt-6 flex flex-col justify-between w-72 shadow border 

@@ -30,7 +30,7 @@ const Connections = () => {
 
   const acceptConnection = async(userId) => {
       try {
-        const response = await dispatch(acceptConnectionRequest(userId, token));
+        const response = await dispatch(acceptConnectionRequest(userId, await getToken()));
         dispatch(fetchConnections(await getToken()));
       } catch (error) {
         console.error(error);
@@ -171,10 +171,10 @@ const Connections = () => {
                       currentTab === 'Connections' && (
                         <>
                           <button className='w-full p-2 text-sm rounded bg-slate-100 hover:bg-slate-200
-                          active:scale-95 transition cursor-pointer text-slate-800 flex justify-center items-center gap-1'>
-                          <MessageSquare className='w-4 h-4' 
-                            onClick={() => navigate(`/messages/${user._id}`)}
-                          />
+                          active:scale-95 transition cursor-pointer text-slate-800 flex justify-center items-center gap-1'
+                          onClick={() => navigate(`/messages/${user._id}`)}
+                          >
+                          <MessageSquare className='w-4 h-4' />
                           Message
                         </button>
                         </>  

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import { Router, Routes, Route } from 'react-router-dom'
+import { Router, Routes, Route, useLocation } from 'react-router-dom'
 import Login from './Pages/Login'
 import Feed from './Pages/Feed'
 import Messages from "./Pages/Messages"
@@ -16,8 +16,12 @@ import {useDispatch} from "react-redux"
 import { fetchUser } from './Services/Operations/userAPIs'
 import { fetchConnections } from './Services/Operations/connectionAPIs'
 import { setConnection } from './Slices/connectionSlice'
+import { useRef } from 'react'
+import { addMessage } from './Slices/messagesSlice'
 
 function App() {
+  const pathname = useLocation();
+  const pathnameRef = useRef(pathname);
   const dispatch = useDispatch();
   const {user} = useUser();
   const {getToken} = useAuth();
@@ -34,6 +38,37 @@ function App() {
 
     fetchData();
   }, [user, getToken, dispatch]);
+
+
+  useEffect(() => {
+    pathnameRef.current = pathname;
+  }, [pathname]);
+
+useEffect(() => {
+    if (user) {
+        const eventSource = new EventSource(import.meta.env.VITE_BASE_URL + "/api/message/" + user.id);
+        eventSource.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            console.log(event);
+            console.log(pathnameRef.current);
+            if (pathnameRef.current.pathname === ("/messages/" + message.from_user_id._id)) {
+                dispatch(addMessage(message));
+            } else {
+                
+            }
+        };
+
+        eventSource.onerror = (error) => {
+            console.error("SSE Error:", error);
+            eventSource.close();
+        };
+
+        return () => {
+            
+            eventSource.close();
+        };
+    }
+    }, [user, dispatch]);
   return (
     <>
     <Toaster />
