@@ -4,6 +4,7 @@ import { useState } from 'react';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
 import { useAuth } from '@clerk/clerk-react';
+import { getRecentMessages } from '../Services/Operations/messagesAPIs';
 
 const RecentMessages = () => {
     const [messages, setMessages] = useState([]);
@@ -11,7 +12,16 @@ const RecentMessages = () => {
     const {getToken} = useAuth();
 
     const fetchRecentMessage = async() =>{
-        setMessages();
+        const token = await getToken();
+        try {
+            const response = await dispatch(getRecentMessages(token));
+
+            if(response.success){
+                setMessages(response.data);
+            }
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     useEffect(() =>{
