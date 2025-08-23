@@ -288,6 +288,7 @@ export const sendConnectionRequest = async(req, res) => {
 
         // Check for any pending requests between the two users
         const pendingConnection = await Connection.findOne({
+            status: "pending",
             $or:[
                 {from_user_id: userId, to_user_id: receiverId},
                 {from_user_id: receiverId, to_user_id: userId},

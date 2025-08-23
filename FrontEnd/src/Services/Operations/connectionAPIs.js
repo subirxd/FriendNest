@@ -111,6 +111,7 @@ export const rejectConnectionRequest = (userId, token) => {
 
 export const sendConnectionRequest = (userId, token) => {
     return async (dispatch) => {
+        const toastId = toast.loading("Sending Connection Request...", {position: "bottom-center"})
         try {
             const {data} = await apiConnector("POST", userRoutes.connectUser, {receiverId: userId}, {
                 Authorization: `Bearer ${token}`
@@ -127,6 +128,8 @@ export const sendConnectionRequest = (userId, token) => {
         } catch (error) {
             console.error(error);
             toast.error(error.response.data.message, {});
+        } finally{
+            toast.dismiss(toastId);
         }
     }
 }
