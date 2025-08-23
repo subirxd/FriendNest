@@ -18,7 +18,8 @@ app.use(cors({
   origin: [
     "http://localhost:3000",
     "https://friend-nest.vercel.app",
-    "https://friend-nest-lerkogod7-subirxds-projects.vercel.app"
+    "https://friend-nest-lerkogod7-subirxds-projects.vercel.app",
+    "https://friend-nest-git-main-subirxds-projects.vercel.app/"
   ],
   credentials: true,
 }));
