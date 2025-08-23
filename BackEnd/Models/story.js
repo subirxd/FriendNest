@@ -26,10 +26,12 @@ const storySchema = new mongoose.Schema({
     background_color:{
         type: String,
     },
-    expires:{
-        type: Date,
-        default: () => Date.now() + 24*60*60*1000,
+    expires: {
+    type: Date,
+    default: () => new Date(Date.now() + 24*60*60*1000),
+    index: { expires: 0 }
     }
+
 }, {timestamps: true});
 
 const Story = mongoose.model("Story", storySchema);
