@@ -57,8 +57,7 @@ const ChatBox = () => {
 
             if (response.success) {
                 dispatch(setMessagesAction(response.data));
-                // Set the user you are chatting with
-                setTargetUser(response.data.targetUser);
+                setTargetUser(response.profileData);
             }
         } catch (error) {
             console.error(error);

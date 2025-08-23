@@ -86,15 +86,19 @@ export const getChatMessages = async(req, res) => {
                 { from_user_id: userId, to_user_id: to_user_id},
                 {from_user_id: to_user_id, to_user_id: userId},
             ]
-        })
+        });
 
         //mark messages as seen
         await Message.updateMany({from_user_id: to_user_id, to_user_id: userId}, 
             {$set:{seen: true}});
 
+        //send profile data
+        const profileData = await User.findById(to_user_id);
+
         return res.status(200).json({
             success: true,
-            data: messages
+            data: messages,
+            profileData: profileData,
         });
 
     } catch (error) {
