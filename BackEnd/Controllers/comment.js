@@ -7,6 +7,28 @@ export const addComment = async(req, res) => {
     try {
         const {userId} = req.auth();
 
+        // Input validation
+        if (!postId || !comment) {
+            return res.status(400).json({
+                success: false,
+                message: "Post ID and comment are required."
+            });
+        }
+
+        if (comment.trim().length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Comment cannot be empty."
+            });
+        }
+
+        if (comment.length > 500) {
+            return res.status(400).json({
+                success: false,
+                message: "Comment cannot exceed 500 characters."
+            });
+        }
+
         //validations
         const user = await User.findById(userId);
         if(!user){
@@ -39,10 +61,10 @@ export const addComment = async(req, res) => {
             data: newComment
         })
     } catch (error) {
-        console.log("Error while adding post: ", error);
+        console.error("Error while adding comment: ", error);
         return res.status(500).json({
             success: false,
-            message: error.message,
+            message: "Internal server error. Please try again later.",
         })
     }
 };
@@ -76,7 +98,7 @@ export const deleteComment = async(req, res) => {
                 message: "Post Not Found."
             })
         }
-        if(comment.userId !== userId){
+        if(comment.userId.toString() !== userId.toString()){
             return res.status(403).json({
                 success: false,
                 message: "You're not authorized to delete this comment."
@@ -99,10 +121,10 @@ export const deleteComment = async(req, res) => {
             data: updatedPost
         })
     } catch (error) {
-        console.log(error.message);
+        console.error("Error while deleting comment: ", error);
         return res.status(500).json({
             success: false,
-            message: error.message,
+            message: "Internal server error. Please try again later.",
         });
     }
 };
@@ -119,10 +141,10 @@ export const getComments = async(req, res) => {
             data: comments
         });
     } catch (error) {
-        console.log(error.message);
+        console.error("Error while getting comments: ", error);
         return res.status(500).json({
             success: false,
-            message: error.message,
+            message: "Internal server error. Please try again later.",
         });
     }
 };

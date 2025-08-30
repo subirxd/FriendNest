@@ -7,6 +7,8 @@ import {serve} from "inngest/express"
 import { clerkMiddleware} from '@clerk/express'
 import { cloudinaryConnect } from "./Config/cloudinary.js";
 import fileUpload from "express-fileupload";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import userRouter from "./Routes/userRoute.js";
 import postRouter from "./Routes/postRoute.js";
 import storyRouter from "./Routes/storyRoute.js";
@@ -14,7 +16,27 @@ import messageRouter from "./Routes/messageRoute.js";
 import commentRouter from "./Routes/commentRoutes.js";
 
 const app = express();
-app.use(express.json());
+
+// Security middleware
+app.use(helmet());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.'
+});
+app.use('/api/', limiter);
+
+// Stricter rate limiting for auth endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 requests per windowMs
+  message: 'Too many authentication attempts, please try again later.'
+});
+
 app.use(cors({
   origin: [
     "http://localhost:3000",

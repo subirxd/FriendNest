@@ -9,6 +9,28 @@ export const addPost = async(req, res) => {
         const {content, post_type} = req?.body;
         const images = req?.files?.images;
 
+        // Input validation
+        if (!content || content.trim().length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Post content is required."
+            });
+        }
+
+        if (content.length > 1000) {
+            return res.status(400).json({
+                success: false,
+                message: "Post content cannot exceed 1000 characters."
+            });
+        }
+
+        if (!['text', 'image', 'text_with_image'].includes(post_type)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid post type."
+            });
+        }
+
         let image_urls = [];
 
         if (images && images.length) {
