@@ -8,16 +8,20 @@ import { addComment, deleteComment, getComments } from '../Services/Operations/c
 import {useAuth} from "@clerk/clerk-react"
 import toast from 'react-hot-toast';
 import { useEffect } from 'react';
+import DOMPurify from 'dompurify';
+import ShareModal from './ShareModal';
 
 const PostCard = ({feed}) => {
 
     const navigate = useNavigate();
     const postWithHashTags = feed.content.replace(/(#\w+)/g, `<span class="text-indigo-600">$1</span>`);
+    const sanitizedContent = DOMPurify.sanitize(postWithHashTags);
     const [likes, setLikes] = useState(feed.likes_count);
     const [comments, setComments] = useState([]);
     const [showComments, setShowComments] = useState(false);
     const [newComment, setNewComment] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
     const currentUser = useSelector((state) => state.user.value);
     const dispatch = useDispatch();
     const {getToken} = useAuth();
@@ -107,6 +111,10 @@ const PostCard = ({feed}) => {
         setShowComments(!showComments);
     };
 
+    const handleShare = () => {
+        setShowShareModal(true);
+    };
+
     useEffect(() => {
         fetchComments();
     }, []);
@@ -136,7 +144,7 @@ const PostCard = ({feed}) => {
             {
                 feed?.content && (
                     <div className='text-gray-800 text-sm whitespace-pre-line'>
-                        <p dangerouslySetInnerHTML={{ __html: postWithHashTags }} />
+                        <p dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
                     </div>
                 )
             }
@@ -168,8 +176,7 @@ const PostCard = ({feed}) => {
             </div>
 
             <div className='flex items-center gap-1'>
-                <Share2 className='w-4 h-4 cursor-pointer' />
-                <span> {7} </span>
+                <Share2 className='w-4 h-4 cursor-pointer' onClick={handleShare} />
             </div>
         </div>
 
@@ -242,6 +249,13 @@ const PostCard = ({feed}) => {
                 </div>
             </div>
         )}
+
+        {/* Share Modal */}
+        <ShareModal 
+            isOpen={showShareModal}
+            onClose={() => setShowShareModal(false)}
+            post={feed}
+        />
     </div>
   )
 }
