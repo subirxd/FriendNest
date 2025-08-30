@@ -11,6 +11,7 @@ import userRouter from "./Routes/userRoute.js";
 import postRouter from "./Routes/postRoute.js";
 import storyRouter from "./Routes/storyRoute.js";
 import messageRouter from "./Routes/messageRoute.js";
+import commentRouter from "./Routes/commentRoutes.js";
 
 const app = express();
 app.use(express.json());
@@ -37,6 +38,7 @@ app.use("/api/user", userRouter);
 app.use("/api/post", postRouter);
 app.use("/api/story", storyRouter);
 app.use("/api/message", messageRouter);
+app.use("/api/comment", commentRouter);
 
 const port = process.env.PORT || 4000;
 

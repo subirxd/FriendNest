@@ -30,3 +30,9 @@ export const messageRoutes = {
   sendMessage: `${BaseURL}/api/message/send`,
   getMessages: `${BaseURL}/api/message/get`,
 };
+
+export const commentRoutes = {
+  addComment: `${BaseURL}/api/comment/add`,
+  deleteComment: `${BaseURL}/api/comment/delete`,
+  getComments: `${BaseURL}/api/comment/get`,
+};
