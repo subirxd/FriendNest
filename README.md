@@ -19,8 +19,6 @@ A modern social media platform built with React, Node.js, and MongoDB that allow
 - [API Documentation](#-api-documentation)
 - [Security Features](#-security-features)
 - [Project Structure](#-project-structure)
-- [Contributing](#-contributing)
-- [License](#-license)
 
 ## ✨ Features
 
@@ -69,7 +67,7 @@ A modern social media platform built with React, Node.js, and MongoDB that allow
 - **Mongoose** - MongoDB ODM
 - **Clerk** - Authentication service
 - **Cloudinary** - Image hosting
-- **Socket.io** - Real-time communication
+- **Server-Sent Events (SSE)** - Real-time communication
 - **Helmet** - Security headers
 - **Express Rate Limit** - Rate limiting
 
@@ -212,7 +210,7 @@ VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
 
 ### For Developers
 - **API Endpoints** - RESTful API with comprehensive documentation
-- **Real-time Features** - WebSocket integration for live updates
+- **Real-time Features** - Server-Sent Events (SSE) for live updates
 - **Security** - Built-in protection against common vulnerabilities
 - **Scalable Architecture** - Modular design for easy maintenance
 
